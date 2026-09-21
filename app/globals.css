@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --bg: #020503;
+  --fg: #33ff77;
+  --line: rgba(51, 255, 119, 0.16);
+  --surface: rgba(51, 255, 119, 0.05);
+  --surface-strong: rgba(51, 255, 119, 0.09);
+  --brand-1: #00ff41;
+  --brand-2: #00d4ff;
+  --accent: #00ff41;
+  --dim: #2fbf71;
+  /* All display headings render in terminal mono too. */
+  --font-display: var(--font-geist-mono, ui-monospace, SFMono-Regular, monospace);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+  -webkit-font-smoothing: antialiased;
+  text-shadow: 0 0 6px rgba(51, 255, 119, 0.18);
+}
+
+::selection {
+  background: #00ff41;
+  color: #020503;
+}
+
+/* ── custom scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 255, 119, 0.25);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(51, 255, 119, 0.45);
+  background-clip: content-box;
+}
+
+/* ── reusable utilities ───────────────────────────────────────────── */
+
+@utility glass {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(6px);
+}
+
+@utility glass-strong {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+}
+
+@utility text-gradient {
+  background: linear-gradient(120deg, #00ff41, #00d4ff 70%, #eafff2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility ring-glow {
+  box-shadow: 0 0 0 1px rgba(0, 255, 65, 0.35),
+    0 0 30px rgba(0, 255, 65, 0.14);
+}
+
+/* Live-status green pulse dot */
+@keyframes llt-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 255, 65, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 65, 0);
+  }
+}
+
+.pulse-dot {
+  background: #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+  animation: llt-pulse 1.8s infinite;
+}
+
+/* ── CRT overlay (scanlines + flicker + vignette) ─────────────────── */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.22) 0px,
+    rgba(0, 0, 0, 0.22) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.crt-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  animation: crt-flicker 7s infinite;
+}
+
+@keyframes crt-flicker {
+  0%,
+  90%,
+  100% {
+    opacity: 1;
+  }
+  91% {
+    opacity: 0.86;
+  }
+  92% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.93;
+  }
+  97% {
+    opacity: 1;
+  }
+}
+
+/* ── terminal window ──────────────────────────────────────────────── */
+.term {
+  position: relative;
+  background: rgba(1, 14, 6, 0.85);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 24px 70px rgba(0, 0, 0, 0.7),
+    0 0 22px rgba(0, 255, 65, 0.07);
+}
+
+.term-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(0, 10, 4, 0.6);
+}
+
+/* Terminal card with the classic invert-on-hover */
+.term-card {
+  background: rgba(1, 14, 6, 0.72);
+  border: 1px solid var(--line);
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+}
+
+.term-card:hover {
+  background: #00ff41;
+  color: #020503;
+  border-color: #00ff41;
+  box-shadow: 0 0 26px rgba(0, 255, 65, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ── glitch heading ───────────────────────────────────────────────── */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: #00d4ff;
+  animation: glitch-a 3.4s infinite steps(1);
+}
+
+.glitch::after {
+  color: #ff3b3b;
+  animation: glitch-b 2.9s infinite steps(1);
+}
+
+@keyframes glitch-a {
+  0%,
+  93% {
+    opacity: 0;
+    transform: none;
+  }
+  93.4% {
+    opacity: 0.75;
+    transform: translate(-3px, -1px);
+    clip-path: inset(0 0 55% 0);
+  }
+  94.2% {
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-b {
+  0%,
+  95% {
+    opacity: 0;
+    transform: none;
+  }
+  95.4% {
+    opacity: 0.75;
+    transform: translate(3px, 1px);
+    clip-path: inset(55% 0 0 0);
+  }
+  96.2% {
+    opacity: 0;
+  }
+}
+
+/* ── blinking terminal caret ──────────────────────────────────────── */
+.caret::after {
+  content: "▌";
+  margin-left: 2px;
+  color: var(--fg);
+  animation: llt-blink 1s step-end infinite;
+}
+
+.blink {
+  animation: llt-blink 1s step-end infinite;
+}
+
+@keyframes llt-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Subtle scanline layer for the map page */
+.map-scan {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.16) 0px,
+    rgba(0, 0, 0, 0.16) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}

@@ -1,0 +1,50 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../lib/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Authentication ──────────────────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(cuid())
+  username       String    @unique
+  passwordHash   String
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// ─── Tracking ────────────────────────────────────────────────────────────────
+
+/// A tracked device. One row per device id (kept fresh via upserts).
+model Target {
+  id        String          @id
+  lat       Float
+  lng       Float
+  /// Total number of location pings received.
+  signals   Int             @default(0)
+  firstSeen DateTime        @default(now())
+  lastSeen  DateTime        @default(now())
+  createdAt DateTime        @default(now())
+  locations LocationPoint[]
+
+  @@index([lastSeen])
+}
+
+/// Raw location readings, used to draw the movement trail on the map.
+model LocationPoint {
+  id        String   @id @default(cuid())
+  targetId  String
+  target    Target   @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
+
+  @@index([targetId, createdAt])
+}
