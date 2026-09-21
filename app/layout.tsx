@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   authors: [
     { name: "Syed Mujtaba Abbas", url: "https://github.com/syed-mujtaba-stack/" },
   ],
+  // Google Search Console ownership verification.
+  verification: {
+    google: "1fO9SPiqvxF11Mi7u2hIHqTyXyghUVqj6xjCx0svCqM",
+  },
 };
 
 export const viewport: Viewport = {
